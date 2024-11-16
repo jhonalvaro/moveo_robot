@@ -60,7 +60,7 @@ int main(int argc, char **argv)
   visual_tools.loadRemoteControl();
 
   // Rviz provides many types of markers, in this demo we will use text, cylinders, and spheres
-  Eigen::Affine3d text_pose = Eigen::Affine3d::Identity();
+  Eigen::Isometry3d text_pose = Eigen::Isometry3d::Identity();
   text_pose.translation().z() = 1.0; // above head of PR2
   visual_tools.publishText(text_pose, "MoveGroupInterface Moveo Demo", rvt::WHITE, rvt::XLARGE);
 
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
   // to actually move the robot.
   moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
-  moveit::planning_interface::MoveItErrorCode success = move_group.plan(my_plan);
+  moveit::core::MoveItErrorCode success = move_group.plan(my_plan);
 
   ROS_INFO_NAMED("moveo", "Visualizing plan 1 (pose goal) %s", success ? "" : "FAILED");
 
