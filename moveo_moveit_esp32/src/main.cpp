@@ -49,9 +49,9 @@
 #define X_ENABLE_PIN       27
 
 // Joint 5 
-#define E0_STEP_PIN        14
-#define E0_DIR_PIN         13
-#define E0_ENABLE_PIN      12
+#define E0_STEP_PIN        13
+#define E0_DIR_PIN         12
+#define E0_ENABLE_PIN      14
 
 // Gripper
 #define GRIPPER_PIN        15
