@@ -1,6 +1,3 @@
-
-
-```markdown
 # Proyecto Moveo ROS con ESP32
 
 Este proyecto utiliza ROS junto con las bibliotecas `MultiStepper`, `AccelStepper` y `ServoESP32` para controlar el brazo robótico BCN3D Moveo. En este setup, se utiliza un shield Ramps 1.4 sobre un ESP32.
@@ -109,6 +106,5 @@ Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo `LICENS
 ## Contacto
 
 Para cualquier pregunta o sugerencia, por favor abre un issue en el repositorio o contacta al autor a través de [tu_email@example.com](mailto:tu_email@example.com).
-```
 
 Este `README.md` proporciona una guía clara y detallada para que otros usuarios puedan configurar y utilizar tu proyecto. Incluye todos los pasos necesarios, desde la clonación del repositorio hasta la carga del firmware en el ESP32 y la monitorización de la salida serial.
