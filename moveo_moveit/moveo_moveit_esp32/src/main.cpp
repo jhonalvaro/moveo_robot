@@ -16,7 +16,9 @@
 #else
   #include <WProgram.h>
 #endif
+#include <WiFi.h>
 #include <ros.h>
+#include <ArduinoTcpHardware.h>
 #include <moveo_moveit/ArmJointState.h>
 #include <Servo.h> 
 #include <std_msgs/Bool.h>
@@ -67,6 +69,15 @@ MultiStepper steppers;
 int joint_step[6];
 int joint_status = 0;
 
+// Configura los detalles de la red WiFi
+const char* ssid = "tu_ssid";
+const char* password = "tu_password";
+
+// Configura la dirección IP y el puerto del servidor ROS
+IPAddress server_ip(192, 168, 0, 182); // Cambia esto a la IP de tu servidor ROS
+const uint16_t server_port = 11411; // Puerto por defecto para rosserial
+
+// Inicializa el nodo ROS
 ros::NodeHandle nh;
 std_msgs::Int16 msg;
 
@@ -94,59 +105,41 @@ ros::Subscriber<std_msgs::UInt16> gripper_sub("gripper_angle", gripper_cb); //su
 //to publish from terminal: rostopic pub gripper_angle std_msgs/UInt16 <0-180>
 
 void setup() {
-  //put your setup code here, to run once:
-  //Serial.begin(57600);
-  pinMode(13,OUTPUT);
-  joint_status = 1;
+  // Conecta a la red WiFi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
 
+  // Inicializa el nodo ROS
+  nh.getHardware()->setConnection(server_ip, server_port);
   nh.initNode();
+
+  // Configura los pines y suscripciones
+  pinMode(13, OUTPUT);
+  joint_status = 1;
   nh.subscribe(arm_sub);
   nh.subscribe(gripper_sub);
-  //nh.advertise(steps);
-
-  // Configure each stepper
+  // Configura cada motor paso a paso
   joint1.setMaxSpeed(1500);
   joint2.setMaxSpeed(750);
   joint3.setMaxSpeed(2000);
   joint4.setMaxSpeed(500);
   joint5.setMaxSpeed(1000);
-
-  // Then give them to MultiStepper to manage
+  // Añade los motores a MultiStepper para gestionarlos
   steppers.addStepper(joint1);
   steppers.addStepper(joint2);
   steppers.addStepper(joint3);
   steppers.addStepper(joint4);
   steppers.addStepper(joint5);
-
-  // Configure gripper servo
-  gripper.attach(GRIPPER_PIN);
-  
-  digitalWrite(13, 1); //toggle led
+  // Configura el servo del gripper
+  gripper.attach(11);
+  digitalWrite(13, 1); // Enciende el LED
 }
 
 void loop() {
-  if (joint_status == 1) // If command callback (arm_cb) is being called, execute stepper command
-  { 
-    long positions[5];  // Array of desired stepper positions must be long
-    positions[0] = joint_step[0]; // negated since the real robot rotates in the opposite direction as ROS
-    positions[1] = -joint_step[1]; 
-    positions[2] = joint_step[2]; 
-    positions[3] = joint_step[3]; 
-    positions[4] = -joint_step[4]; 
-
-    // Publish back to ros to check if everything's correct
-    //msg.data=positions[4];
-    //steps.publish(&msg);
-
-    steppers.moveTo(positions);
-    nh.spinOnce();
-    steppers.runSpeedToPosition(); // Blocks until all are in position
-    gripper.write(joint_step[5]);  // move gripper after manipulator reaches goal   
-  }
-  digitalWrite(13, HIGH-digitalRead(13)); //toggle led
-  joint_status = 0;
-  
   nh.spinOnce();
   delay(1);
-  
 }

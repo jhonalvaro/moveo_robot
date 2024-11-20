@@ -1,0 +1,2 @@
+
+-DCATKIN_DEVEL_PREFIX=/home/equipo/catkin_ws/src/moveo_robot/moveo_moveit/moveo_moveit_esp32/devel -DCMAKE_INSTALL_PREFIX=/home/equipo/catkin_ws/src/moveo_robot/moveo_moveit/moveo_moveit_esp32/install -G Unix Makefiles
