@@ -57,10 +57,10 @@
 // Gripper
 #define GRIPPER_PIN        15
 
-AccelStepper joint1(1,E1_STEP_PIN, E1_DIR_PIN);
-AccelStepper joint2(1,Z_STEP_PIN, Z_DIR_PIN);
-AccelStepper joint3(1,Y_STEP_PIN, Y_DIR_PIN);
-AccelStepper joint4(1,X_STEP_PIN, X_DIR_PIN);
+AccelStepper joint1(1, E1_STEP_PIN, E1_DIR_PIN);
+AccelStepper joint2(1, Z_STEP_PIN, Z_DIR_PIN);
+AccelStepper joint3(1, Y_STEP_PIN, Y_DIR_PIN);
+AccelStepper joint4(1, X_STEP_PIN, X_DIR_PIN);
 AccelStepper joint5(1, E0_STEP_PIN, E0_DIR_PIN);
 
 Servo gripper;
@@ -70,8 +70,8 @@ int joint_step[6];
 int joint_status = 0;
 
 // Configura los detalles de la red WiFi
-const char* ssid = "tu_ssid";
-const char* password = "tu_password";
+const char* ssid = "tured"; // Cambia esto a tu SSID
+const char* password = "tucontrasena"; // Cambia esto a tu contraseña
 
 // Configura la dirección IP y el puerto del servidor ROS
 IPAddress server_ip(192, 168, 0, 182); // Cambia esto a la IP de tu servidor ROS
@@ -81,10 +81,10 @@ const uint16_t server_port = 11411; // Puerto por defecto para rosserial
 ros::NodeHandle nh;
 std_msgs::Int16 msg;
 
-//instantiate publisher (for debugging purposes)
-//ros::Publisher steps("joint_steps_feedback",&msg);
+// Define el publicador
+ros::Publisher steps_pub("joint_steps_feedback", &msg);
 
-void arm_cb(const moveo_moveit::ArmJointState& arm_steps){
+void arm_cb(const moveo_moveit::ArmJointState& arm_steps) {
   joint_status = 1;
   joint_step[0] = arm_steps.position1;
   joint_step[1] = arm_steps.position2;
@@ -92,17 +92,20 @@ void arm_cb(const moveo_moveit::ArmJointState& arm_steps){
   joint_step[3] = arm_steps.position4;
   joint_step[4] = arm_steps.position5;
   joint_step[5] = arm_steps.position6; //gripper position <0-180>
+
+  // Publica en el topic joint_steps_feedback
+  msg.data = joint_step[0]; // Puedes cambiar esto para publicar otros datos
+  steps_pub.publish(&msg);
 }
 
-void gripper_cb( const std_msgs::UInt16& cmd_msg){
+void gripper_cb(const std_msgs::UInt16& cmd_msg) {
   gripper.write(cmd_msg.data); // Set servo angle, should be from 0-180  
-  digitalWrite(13, HIGH-digitalRead(13));  // Toggle led  
+  digitalWrite(13, HIGH - digitalRead(13));  // Toggle led  
 }
 
-//instantiate subscribers
-ros::Subscriber<moveo_moveit::ArmJointState> arm_sub("joint_steps",arm_cb); //subscribes to joint_steps on arm
-ros::Subscriber<std_msgs::UInt16> gripper_sub("gripper_angle", gripper_cb); //subscribes to gripper position
-//to publish from terminal: rostopic pub gripper_angle std_msgs/UInt16 <0-180>
+// Instantiate subscribers
+ros::Subscriber<moveo_moveit::ArmJointState> arm_sub("joint_steps", arm_cb); // Subscribes to joint_steps on arm
+ros::Subscriber<std_msgs::UInt16> gripper_sub("gripper_angle", gripper_cb); // Subscribes to gripper position
 
 void setup() {
   // Conecta a la red WiFi
@@ -122,18 +125,22 @@ void setup() {
   joint_status = 1;
   nh.subscribe(arm_sub);
   nh.subscribe(gripper_sub);
+  nh.advertise(steps_pub);
+
   // Configura cada motor paso a paso
   joint1.setMaxSpeed(1500);
   joint2.setMaxSpeed(750);
   joint3.setMaxSpeed(2000);
   joint4.setMaxSpeed(500);
   joint5.setMaxSpeed(1000);
+
   // Añade los motores a MultiStepper para gestionarlos
   steppers.addStepper(joint1);
   steppers.addStepper(joint2);
   steppers.addStepper(joint3);
   steppers.addStepper(joint4);
   steppers.addStepper(joint5);
+
   // Configura el servo del gripper
   gripper.attach(11);
   digitalWrite(13, 1); // Enciende el LED
