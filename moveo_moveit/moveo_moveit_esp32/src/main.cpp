@@ -17,8 +17,7 @@
   #include <WProgram.h>
 #endif
 #include <ros.h>
-
-#include <ArmJointState.h>
+#include <moveo_moveit/ArmJointState.h>
 #include <Servo.h> 
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>

@@ -1,40 +1,32 @@
-#ifndef _ROS_SERVICE_ApplyBodyWrench_h
-#define _ROS_SERVICE_ApplyBodyWrench_h
+#ifndef _ROS_SERVICE_ApplyJointEffort_h
+#define _ROS_SERVICE_ApplyJointEffort_h
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
 #include "ros/time.h"
 #include "ros/duration.h"
-#include "geometry_msgs/Wrench.h"
-#include "geometry_msgs/Point.h"
 
 namespace gazebo_msgs
 {
 
-static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
+static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
 
-  class ApplyBodyWrenchRequest : public ros::Msg
+  class ApplyJointEffortRequest : public ros::Msg
   {
     public:
-      typedef const char* _body_name_type;
-      _body_name_type body_name;
-      typedef const char* _reference_frame_type;
-      _reference_frame_type reference_frame;
-      typedef geometry_msgs::Point _reference_point_type;
-      _reference_point_type reference_point;
-      typedef geometry_msgs::Wrench _wrench_type;
-      _wrench_type wrench;
+      typedef const char* _joint_name_type;
+      _joint_name_type joint_name;
+      typedef float _effort_type;
+      _effort_type effort;
       typedef ros::Time _start_time_type;
       _start_time_type start_time;
       typedef ros::Duration _duration_type;
       _duration_type duration;
 
-    ApplyBodyWrenchRequest():
-      body_name(""),
-      reference_frame(""),
-      reference_point(),
-      wrench(),
+    ApplyJointEffortRequest():
+      joint_name(""),
+      effort(0),
       start_time(),
       duration()
     {
@@ -43,18 +35,12 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
     virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
-      uint32_t length_body_name = strlen(this->body_name);
-      varToArr(outbuffer + offset, length_body_name);
+      uint32_t length_joint_name = strlen(this->joint_name);
+      varToArr(outbuffer + offset, length_joint_name);
       offset += 4;
-      memcpy(outbuffer + offset, this->body_name, length_body_name);
-      offset += length_body_name;
-      uint32_t length_reference_frame = strlen(this->reference_frame);
-      varToArr(outbuffer + offset, length_reference_frame);
-      offset += 4;
-      memcpy(outbuffer + offset, this->reference_frame, length_reference_frame);
-      offset += length_reference_frame;
-      offset += this->reference_point.serialize(outbuffer + offset);
-      offset += this->wrench.serialize(outbuffer + offset);
+      memcpy(outbuffer + offset, this->joint_name, length_joint_name);
+      offset += length_joint_name;
+      offset += serializeAvrFloat64(outbuffer + offset, this->effort);
       *(outbuffer + offset + 0) = (this->start_time.sec >> (8 * 0)) & 0xFF;
       *(outbuffer + offset + 1) = (this->start_time.sec >> (8 * 1)) & 0xFF;
       *(outbuffer + offset + 2) = (this->start_time.sec >> (8 * 2)) & 0xFF;
@@ -81,26 +67,16 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
     virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
-      uint32_t length_body_name;
-      arrToVar(length_body_name, (inbuffer + offset));
+      uint32_t length_joint_name;
+      arrToVar(length_joint_name, (inbuffer + offset));
       offset += 4;
-      for(unsigned int k= offset; k< offset+length_body_name; ++k){
+      for(unsigned int k= offset; k< offset+length_joint_name; ++k){
           inbuffer[k-1]=inbuffer[k];
       }
-      inbuffer[offset+length_body_name-1]=0;
-      this->body_name = (char *)(inbuffer + offset-1);
-      offset += length_body_name;
-      uint32_t length_reference_frame;
-      arrToVar(length_reference_frame, (inbuffer + offset));
-      offset += 4;
-      for(unsigned int k= offset; k< offset+length_reference_frame; ++k){
-          inbuffer[k-1]=inbuffer[k];
-      }
-      inbuffer[offset+length_reference_frame-1]=0;
-      this->reference_frame = (char *)(inbuffer + offset-1);
-      offset += length_reference_frame;
-      offset += this->reference_point.deserialize(inbuffer + offset);
-      offset += this->wrench.deserialize(inbuffer + offset);
+      inbuffer[offset+length_joint_name-1]=0;
+      this->joint_name = (char *)(inbuffer + offset-1);
+      offset += length_joint_name;
+      offset += deserializeAvrFloat64(inbuffer + offset, &(this->effort));
       this->start_time.sec =  ((uint32_t) (*(inbuffer + offset)));
       this->start_time.sec |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
       this->start_time.sec |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
@@ -124,12 +100,12 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
      return offset;
     }
 
-    virtual const char * getType() override { return APPLYBODYWRENCH; };
-    virtual const char * getMD5() override { return "e37e6adf97eba5095baa77dffb71e5bd"; };
+    virtual const char * getType() override { return APPLYJOINTEFFORT; };
+    virtual const char * getMD5() override { return "2c3396ab9af67a509ecd2167a8fe41a2"; };
 
   };
 
-  class ApplyBodyWrenchResponse : public ros::Msg
+  class ApplyJointEffortResponse : public ros::Msg
   {
     public:
       typedef bool _success_type;
@@ -137,7 +113,7 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
       typedef const char* _status_message_type;
       _status_message_type status_message;
 
-    ApplyBodyWrenchResponse():
+    ApplyJointEffortResponse():
       success(0),
       status_message("")
     {
@@ -184,15 +160,15 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
      return offset;
     }
 
-    virtual const char * getType() override { return APPLYBODYWRENCH; };
+    virtual const char * getType() override { return APPLYJOINTEFFORT; };
     virtual const char * getMD5() override { return "2ec6f3eff0161f4257b808b12bc830c2"; };
 
   };
 
-  class ApplyBodyWrench {
+  class ApplyJointEffort {
     public:
-    typedef ApplyBodyWrenchRequest Request;
-    typedef ApplyBodyWrenchResponse Response;
+    typedef ApplyJointEffortRequest Request;
+    typedef ApplyJointEffortResponse Response;
   };
 
 }
