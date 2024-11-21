@@ -85,7 +85,7 @@ std_msgs::Int16 msg;
 //instantiate publisher (for debugging purposes)
 //ros::Publisher steps("joint_steps_feedback",&msg);
 
-void arm_cb(const moveo_moveit::ArmJointState& arm_steps){
+void arm_cb(const moveo_moveit::ArmJointState& arm_steps) {
   joint_status = 1;
   joint_step[0] = arm_steps.position1;
   joint_step[1] = arm_steps.position2;
@@ -95,9 +95,10 @@ void arm_cb(const moveo_moveit::ArmJointState& arm_steps){
   joint_step[5] = arm_steps.position6; //gripper position <0-180>
 }
 
-void gripper_cb( const std_msgs::UInt16& cmd_msg){
-  gripper.write(cmd_msg.data); // Set servo angle, should be from 0-180  
-  digitalWrite(13, HIGH-digitalRead(13));  // Toggle led  
+void gripper_cb(const std_msgs::UInt16& cmd_msg) {
+  gripper.write(cmd_msg.data);
+  // Elimina la línea que utiliza el pin 13
+  // digitalWrite(13, HIGH-digitalRead(13)); 
 }
 
 //instantiate subscribers
@@ -108,7 +109,8 @@ ros::Subscriber<std_msgs::UInt16> gripper_sub("gripper_angle", gripper_cb); //su
 void setup() {
   //put your setup code here, to run once:
   //Serial.begin(57600);
-  pinMode(13,OUTPUT);
+  // Elimina la configuración del pin 13 como salida
+  // pinMode(13,OUTPUT);
   joint_status = 1;
 
   // Inicializa la comunicación serial
@@ -150,7 +152,8 @@ void setup() {
   // Configure gripper servo
   gripper.attach(GRIPPER_PIN);
   
-  digitalWrite(13, 1); //toggle led
+  // Elimina la línea que utiliza el pin 13
+  // digitalWrite(13, 1); //toggle led
 }
 
 void loop() {
@@ -172,7 +175,8 @@ void loop() {
     steppers.runSpeedToPosition(); // Blocks until all are in position
     gripper.write(joint_step[5]);  // move gripper after manipulator reaches goal   
   }
-  digitalWrite(13, HIGH-digitalRead(13)); //toggle led
+  // Elimina la línea que utiliza el pin 13
+  // digitalWrite(13, HIGH-digitalRead(13)); //toggle led
   joint_status = 0;
   
   nh.spinOnce();
